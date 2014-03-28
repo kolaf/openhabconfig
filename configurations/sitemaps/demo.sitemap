@@ -1,6 +1,8 @@
 sitemap demo label="Fallokken"
 {
 Frame {
+		
+		Setpoint item=ThermostatAway minValue=0 maxValue=24 step=0.5
 		Group item=gFF label="First Floor" icon="firstfloor"
 		Group item=gGF label="Ground Floor" icon="groundfloor"
 		Group item=gC label="Cellar" icon="cellar"	
@@ -14,5 +16,7 @@ Frame {
 		// label="Thermostat settings" icon="temperature" url="thermostat/thermostat.html"
 		//Webview url="thermostat/thermostat.html" height=8 label="Thermostat settings" icon="temperature"
 }
-	
+	Frame label="charts" {
+		Chart item=Temperature
+	}	
 }

@@ -9,6 +9,7 @@ Group	ThermostatHeatingRates	(All)
 Group	ThermostatHysteresis	(All)
 Group	ThermostatHeaters	(All)
 
+Number ThermostatAway	"Returning in [%.1f] hours"	<time>
 
 
 Switch	BedroomnHeater	"Heater North bedroom"	(FF_bedroomn,BedroomnThermostat,ThermostatHeaters)		{ rfxcom=">636602.1:LIGHTING2.AC:Command" }

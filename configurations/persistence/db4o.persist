@@ -12,6 +12,6 @@ Strategies {
  * item (excl. the group item itself).
  */
 Items {
-	ThermostatSettings*, ThermostatHeatingRates*, ThermostatHysteresis* : strategy = restoreOnStartup, everyChange
+	ThermostatSettings*, ThermostatHeatingRates*, ThermostatHysteresis*,ThermostatAway : strategy = restoreOnStartup, everyChange
 
 }
