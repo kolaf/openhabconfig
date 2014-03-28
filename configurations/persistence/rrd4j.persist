@@ -9,5 +9,5 @@ Items {
 	
 	// let's only store temperature values in rrd
 	Temperature*, WindSpeed, WindDirection, Humidity*,CurrentThermostatTarget* : strategy = everyMinute, restoreOnStartup
-	
+	ThermostatHeaters* : strategy = everyMinute
 }

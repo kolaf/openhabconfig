@@ -11,8 +11,8 @@ Frame {
 		Group item=AllThermostats
 		Switch item=BedroomnHeater
 		Switch item=LivingRoomHeater
-		Text label="Thermostat settings" icon="temperature"
-		Webview url="thermostat/thermostat.html" height=8 label="Thermostat settings" icon="temperature"
+		// label="Thermostat settings" icon="temperature" url="thermostat/thermostat.html"
+		//Webview url="thermostat/thermostat.html" height=8 label="Thermostat settings" icon="temperature"
 }
 	
 }

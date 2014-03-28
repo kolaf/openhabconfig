@@ -3,10 +3,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="http://fallokken.kolaf.net:8080/thermostat/RGraph/libraries/RGraph.common.core.js" ></script>
-    <script src="http://fallokken.kolaf.net:8080/thermostat/RGraph/libraries/RGraph.common.dynamic.js" ></script>
-    <script src="http://fallokken.kolaf.net:8080/thermostat/RGraph/libraries/RGraph.bar.js" ></script>
-	<script src="http://fallokken.kolaf.net:8080/thermostat/jquery.min.js" type="text/javascript"></script>
+    <script src="RGraph/libraries/RGraph.common.core.js" ></script>
+    <script src="RGraph/libraries/RGraph.common.dynamic.js" ></script>
+    <script src="RGraph/libraries/RGraph.bar.js" ></script>
+	<script src="jquery.min.js" type="text/javascript"></script>
 
     <meta name="description" content="A range Line chart which is adjustable - so you can drag the data points up and down" />
     <meta name="robots" content="noindex,nofollow" />
@@ -26,8 +26,7 @@
 	
     $(document).ready( function () {
 		//We count zero from Monday,, not from Sunday as JavaScript does
-		var today =(new Date).getDay ()-1;
-		if (today<0) {today=6;}
+		var today =(new Date).getDay ();
 		setSelectedIndex (document.getElementById("day"),today);
 		getThermostats();
 		
@@ -71,7 +70,7 @@
         var request = $.ajax
         ({
                 type       : "GET",
-                url        : "http://fallokken.kolaf.net:8080/rest/items/ThermostatSettings",
+                url        : "http://localhost:8080/rest/items/ThermostatSettings",
 				dataType	: "xml"
         });
 
@@ -105,7 +104,7 @@
         var request = $.ajax
         ({
                 type       : "GET",
-                url        : "http://fallokken.kolaf.net:8080/rest/items/" + selectedThermostat.options [selectedThermostat.selectedIndex].value + "/state"
+                url        : "http://localhost:8080/rest/items/" + selectedThermostat.options [selectedThermostat.selectedIndex].value + "/state"
         });
 
         request.done( function(data) 
@@ -177,14 +176,15 @@ function setState( txtNewState )
 <select id="selectThermostat" onchange = "getState ()">
 </select>
 <select id="day" onchange = "getState ()">
-<option value="6">Sunday</option>
-<option value="0">Monday</option>
-<option value="1" >Tuesday</option>
-<option value="2">Wedensday</option>
-<option value="3">Thursday</option>
-<option value="4">Friday</option>
-<option value="5">Saturday</option>
+<option value="0">Sunday</option>
+<option value="1">Monday</option>
+<option value="2" >Tuesday</option>
+<option value="3">Wedensday</option>
+<option value="4">Thursday</option>
+<option value="5">Friday</option>
+<option value="6">Saturday</option>
 </select>
-
+<br/>
+<a href  =  "/openhab.app?sitemap=demo">Main Page </a>
 </body>
 </html>

@@ -7,11 +7,12 @@ Group	ThermostatSettings	(All)
 Group	CurrentThermostatTarget	(All)	
 Group	ThermostatHeatingRates	(All)
 Group	ThermostatHysteresis	(All)
+Group	ThermostatHeaters	(All)
 
 
 
-Switch	BedroomnHeater	"Heater North bedroom"	(FF_bedroomn,BedroomnThermostat)		{ rfxcom=">636602.1:LIGHTING2.AC:Command" }
-Switch	LivingRoomHeater	"Heater living room"	(GF_livingroom,LivingRoomThermostat)		{ rfxcom=">636602.2:LIGHTING2.AC:Command" }
+Switch	BedroomnHeater	"Heater North bedroom"	(FF_bedroomn,BedroomnThermostat,ThermostatHeaters)		{ rfxcom=">636602.1:LIGHTING2.AC:Command" }
+Switch	LivingRoomHeater	"Heater living room"	(GF_livingroom,LivingRoomThermostat,ThermostatHeaters)		{ rfxcom=">636602.2:LIGHTING2.AC:Command" }
 
 
 String	LivingroomThermostatSettings	"Living room thermostat string [%s]"	<heating>	(GF_livingroom,ThermostatSettings,LivingRoomThermostat)

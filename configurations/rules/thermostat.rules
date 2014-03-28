@@ -31,14 +31,17 @@ then
 		var day= now.getDayOfWeek // tthis function counts zero from Monday
 		var hour=now.getHourOfDay
 		var  below = false
-		AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("CurrentTarget")).head.postUpdate(temperatureTarget.get(day*24+hour))
+		AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("CurrentTarget")).head.postUpdate(Float::parseFloat(temperatureTarget.get(day*24+hour))) 
 		for  (i: 1..lookahead*60){
 			var future =now.plusMinutes(i)
 			
-			if((Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) < (Float::parseFloat(temperatureTarget.get(future.getDayOfWeek*24+future.getHourOfDay))- hysteresis)){
+			if((heater.state ==OFF  && (Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) 
+				< (Float::parseFloat(temperatureTarget.get(future.getDayOfWeek*24+future.getHourOfDay))- hysteresis))
+				 || (heater.state ==ON  && (Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60))
+				  < (Float::parseFloat(temperatureTarget.get(future.getDayOfWeek*24+future.getHourOfDay))+ hysteresis))){
 					below = true
 					logDebug("thermostat", "Testing for i="+i + ", current temperature is  expected to be " + (Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) + " compared to target " + (Float::parseFloat(temperatureTarget.get(future.getDayOfWeek*24+future.getHourOfDay))- hysteresis))
-					logDebug("thermostat", "We are off and below")
+					logDebug("thermostat", "We are below")
 			}
 			if((Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) > Float::parseFloat(temperatureTarget.get(future.getDayOfWeek*24+future.getHourOfDay))+ hysteresis){
 				if (heater.state!=OFF){
