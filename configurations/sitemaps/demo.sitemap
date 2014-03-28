@@ -1,0 +1,24 @@
+sitemap demo label="Main Menu"
+
+Frame {
+		Group item=gFF label="First Floor" icon="firstfloor"
+		Group item=gGF label="Ground Floor" icon="groundfloor"
+		Group item=gC label="Cellar" icon="cellar"	
+		Group item=Outdoors icon="garden" 
+		Group item=Temperature icon="temperature"
+		Group item=Humidity icon="humidity"
+		Group item=Weather   icon="weather"
+		Switch item=bedroomse_heater
+		Switch item=livingroom_heater
+		Image url="http://localhost:8080/rrdchart.png?groups=Temperature&period=4h"
+}
+	
+Frame label="Demo" {
+         Text label="Group Demo" icon="1stfloor" {
+                Text item=Temperature
+                Text item= OutdoorTemperature
+                Text item= BedroomnTemperature
+                Chart item=Weather_Chart period=h refresh=10000  
+         }
+         
+}

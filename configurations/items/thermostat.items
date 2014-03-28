@@ -1,0 +1,13 @@
+Group	AllThermostats	(All)
+
+Group	LivingRoomThermostat	(AllThermostats)
+Group	BedroomnThermostat	(AllThermostats)
+
+Group	ThermostatSettings	(All)	
+
+Switch	BedroomnHeater	"Heater North bedroom"	(FF_bedroomn,BedroomnThermostat)		{ rfxcom=">636602.1:LIGHTING2.AC:Command" }
+Switch	LivingRoomHeater	"Heater living room"	(GF_livingroom,LivingRoomThermostat)		{ rfxcom=">636602.2:LIGHTING2.AC:Command" }
+
+
+String	LivingroomThermostatSettings	"Living room thermostat string [%s]"	<heating>	(GF_livingroom,ThermostatSettings,LivingRoomThermostat)
+String	BedroomnThermostatSettings	"North bedroom thermostat string [%s]"	<heating>	(FF_bedroomn,ThermostatSettings,BedroomnThermostat)	
