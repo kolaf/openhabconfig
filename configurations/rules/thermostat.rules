@@ -1,29 +1,61 @@
 import org.openhab.core.library.types.*
 import org.openhab.core.library.items.*
 import java.util.*
+import org.joda.time.* 
+
+
 
 
 rule thermostat_init
 when System started
 then
-   ThermostatSettings?.members.forEach(therm|                 // Set default values for all modes, up to the user to review them in GUI
-       if (therm.state == Uninitialized) therm.postUpdate("15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15")      // they will then be persisted 
-              
-    )
+	AllThermostats?.members.forEach[t|
+		//AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("ThermostatSettings")).head.postUpdate("15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15")
+		AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("HeatingRate")).head.postUpdate(2)
+		AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Hysteresis")).head.postUpdate(0.5)				
+	]
 end
 
 rule check_thermostat
 when Time cron  "0 * * * * ?"
 then
-	
+	val lookahead=4
 	AllThermostats?.members.forEach[t|
 		logDebug("thermostat",t.name)
 		var temperatureTarget=AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("ThermostatSettings")).head.state.toString.split(",")
 		var heater = AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Heater")).head
-		///var heatingRate = AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("HeatingRate")).head.state  as DecimalType
+		var heatingRate = AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("HeatingRate")).head.state  as DecimalType
 		var currentTemperature=AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Temperature")).head.state as DecimalType
-		var day= new  Date().day as Integer
-		var hour=new Date ().hours as Integer
-		logDebug("thermostat","Current day is " + day +  ",  current hour is " +hour + ", and the temperature target is  " +temperatureTarget.get(day*24+hour)+ ".  The temperature is " +currentTemperature+ "  and the heater is  " +heater.state)
+		var hysteresis=AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Hysteresis")).head.state as DecimalType
+		var now = new DateTime()
+		var day= now.getDayOfWeek // tthis function counts zero from Monday
+		var hour=now.getHourOfDay
+		var  below = false
+		AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("CurrentTarget")).head.postUpdate(temperatureTarget.get(day*24+hour))
+		for  (i: 1..lookahead*60){
+			var future =now.plusMinutes(i)
+			
+			if((Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) < (Float::parseFloat(temperatureTarget.get(future.getDayOfWeek*24+future.getHourOfDay))- hysteresis)){
+					below = true
+					logDebug("thermostat", "Testing for i="+i + ", current temperature is  expected to be " + (Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) + " compared to target " + (Float::parseFloat(temperatureTarget.get(future.getDayOfWeek*24+future.getHourOfDay))- hysteresis))
+					logDebug("thermostat", "We are off and below")
+			}
+			if((Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) > Float::parseFloat(temperatureTarget.get(future.getDayOfWeek*24+future.getHourOfDay))+ hysteresis){
+				if (heater.state!=OFF){
+						
+					
+									
+				}
+			}
+		}
+		if (below && heater.state!=ON){
+			heater.sendCommand(ON)
+			logDebug("thermostat", "Switching on heater " + t.name)
+		}else if (!below && heater.state!=OFF) {
+			heater.sendCommand(OFF)
+			logDebug("thermostat", "Switching off heater " + t.name)
+		}
+		logDebug("thermostat",t.name  +": current day is " + day +  ",  current hour is " +hour + ", and the temperature target is  " +temperatureTarget.get(day*24+hour)+ ".  The temperature is " +currentTemperature+ ", the heating rate is  "  +heatingRate +  ", and the heater is  " +heater.state)
+		
 	]
 end

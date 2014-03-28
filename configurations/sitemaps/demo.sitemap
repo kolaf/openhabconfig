@@ -1,5 +1,5 @@
-sitemap demo label="Main Menu"
-
+sitemap demo label="Fallokken"
+{
 Frame {
 		Group item=gFF label="First Floor" icon="firstfloor"
 		Group item=gGF label="Ground Floor" icon="groundfloor"
@@ -8,17 +8,11 @@ Frame {
 		Group item=Temperature icon="temperature"
 		Group item=Humidity icon="humidity"
 		Group item=Weather   icon="weather"
-		Switch item=bedroomse_heater
-		Switch item=livingroom_heater
-		Image url="http://localhost:8080/rrdchart.png?groups=Temperature&period=4h"
+		Group item=AllThermostats
+		Switch item=BedroomnHeater
+		Switch item=LivingRoomHeater
+		Text label="Thermostat settings" icon="temperature"
+		Webview url="thermostat/thermostat.html" height=8 label="Thermostat settings" icon="temperature"
 }
 	
-Frame label="Demo" {
-         Text label="Group Demo" icon="1stfloor" {
-                Text item=Temperature
-                Text item= OutdoorTemperature
-                Text item= BedroomnTemperature
-                Chart item=Weather_Chart period=h refresh=10000  
-         }
-         
 }

@@ -4,8 +4,6 @@ Strategies {
 	everyHour	: "0 0 * * * ?"
 	everyMinute	: "0 * * * * ?"
 
-	// If no strategy is specified for an item entry below, the default list will be used.
-	default = everyChange 
 }
 
 /*
@@ -14,6 +12,6 @@ Strategies {
  * item (excl. the group item itself).
  */
 Items {
-	ThermostatSettings* : strategy = everyHour, everyChange, restoreOnStartup
+	ThermostatSettings*, ThermostatHeatingRates*, ThermostatHysteresis* : strategy = restoreOnStartup, everyChange
 
 }

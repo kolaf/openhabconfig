@@ -3,7 +3,12 @@ Group	AllThermostats	(All)
 Group	LivingRoomThermostat	(AllThermostats)
 Group	BedroomnThermostat	(AllThermostats)
 
-Group	ThermostatSettings	(All)	
+Group	ThermostatSettings	(All)
+Group	CurrentThermostatTarget	(All)	
+Group	ThermostatHeatingRates	(All)
+Group	ThermostatHysteresis	(All)
+
+
 
 Switch	BedroomnHeater	"Heater North bedroom"	(FF_bedroomn,BedroomnThermostat)		{ rfxcom=">636602.1:LIGHTING2.AC:Command" }
 Switch	LivingRoomHeater	"Heater living room"	(GF_livingroom,LivingRoomThermostat)		{ rfxcom=">636602.2:LIGHTING2.AC:Command" }
@@ -11,3 +16,13 @@ Switch	LivingRoomHeater	"Heater living room"	(GF_livingroom,LivingRoomThermostat
 
 String	LivingroomThermostatSettings	"Living room thermostat string [%s]"	<heating>	(GF_livingroom,ThermostatSettings,LivingRoomThermostat)
 String	BedroomnThermostatSettings	"North bedroom thermostat string [%s]"	<heating>	(FF_bedroomn,ThermostatSettings,BedroomnThermostat)	
+
+//For graphing
+Number LivingRoomCurrentTarget	"The current living room target is  [%.1f]"  <temperature>	(CurrentThermostatTarget,GF_livingroom,LivingRoomThermostat)
+Number BedroomnCurrentTarget "The current North bedroom target is  [%.1f]"  <temperature>	(CurrentThermostatTarget,FF_bedroomn,BedroomnThermostat)
+
+Number LivingRoomHysteresis "Living room hysteresis is [%.1f]"	<temperature>	(GF_livingroom,LivingRoomThermostat,ThermostatHysteresis)
+Number BedroomnHysteresis "North bedroom hysteresis is [%.1f]"	<temperature>	(FF_bedroomn,BedroomnThermostat,ThermostatHysteresis)
+
+Number LivingRoomHeatingRate "Living room heating rate is [%.1f]"	<temperature>	(GF_livingroom,LivingRoomThermostat,ThermostatHeatingRates)
+Number BedroomnHeatingRate "North bedroom heating rate is [%.1f]"	<temperature>	(FF_bedroomn,BedroomnThermostat,ThermostatHeatingRates)
