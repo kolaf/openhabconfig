@@ -14,15 +14,15 @@ Group	Temperature	"Temperatures"	<temperature>	(Status)
 Group	Humidity	"Humidities"	<humidity>	(Status)	
 
 Number	OutdoorTemperature	"Outdoor Temperature [%.1f °C]"	<temperature>	(Temperature,Outdoors,Weather)		{ rfxcom="<29953:Temperature" }
-Number	BedroomnTemperature	"North bedroom Temperature [%.1f °C]"	<temperature>	(Temperature,FF_bedroomn,BedroomnThermostat)		{ rfxcom="<59652:Temperature" }
+Number	BedroomnTemperature	"North bedroom Temperature [%.1f °C]"	<temperature>	(Temperature,FF_bedroomn,BedroomnThermostat)		{ rfxcom="<19713:Temperature" }
 Number	BedroomseTemperature	"Southeast bedroom Temperature [%.1f °C]"	<temperature>	(Temperature,FF_bedroomse)		{ rfxcom="<60170:Temperature" }
-Number	LivingroomTemperature	"Living room Temperature [%.1f °C]"	<temperature>	(Temperature,GF_livingroom,LivingRoomThermostat)		{ rfxcom="<6657:Temperature" }
+Number	LivingroomTemperature	"Living room Temperature [%.1f °C]"	<temperature>	(Temperature,GF_livingroom,LivingRoomThermostat)		{ rfxcom="<47361:Temperature" }
 Number	BasementTemperature	"Basement Temperature [%.1f °C]"	<temperature>	(Temperature,gC)		{ rfxcom="<44546:Temperature" }
 
 Number	OutdoorHumidity	"Outdoor Humidity [%.1f %%]"	<humidity>	(Humidity,Outdoors,Weather)		{ rfxcom="<29953:Humidity" }
-Number	BedroomnHumidity	"North bedroom Humidity [%.1f %%]"	<humidity>	(Humidity,FF_bedroomn)		{ rfxcom="<59652:Humidity" }
+Number	BedroomnHumidity	"North bedroom Humidity [%.1f %%]"	<humidity>	(Humidity,FF_bedroomn)		{ rfxcom="<19713:Humidity" }
 Number	BedroomseHumidity	"Southeast bedroom Humidity [%.1f %%]"	<humidity>	(Humidity,FF_bedroomse)		{ rfxcom="<60170:Humidity" }
-Number	LivingroomHumidity	"Living room Humidity [%.1f %%]"	<humidity>	(Humidity,GF_livingroom)		{ rfxcom="<6657:Humidity" }
+Number	LivingroomHumidity	"Living room Humidity [%.1f %%]"	<humidity>	(Humidity,GF_livingroom)		{ rfxcom="<47361:Humidity" }
 Number	BasementHumidity	"Basement Humidity [%.1f %%]"	<humidity>	(Humidity,gC)		{ rfxcom="<44546:Humidity" }
 
 Number	WindSpeed	"Wind speed [%.1f m/s]"	<wind>	(Outdoors,Weather)		{ rxfcom="<27648:WindSpeed" }
