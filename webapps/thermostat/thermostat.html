@@ -26,7 +26,8 @@
 	
     $(document).ready( function () {
 		//We count zero from Monday,, not from Sunday as JavaScript does
-		var today =(new Date).getDay ();
+		var today =(new Date).getDay ()-1;
+        if (today<0) {today=6;}
 		setSelectedIndex (document.getElementById("day"),today);
 		getThermostats();
 		
@@ -177,13 +178,14 @@ function setState( txtNewState )
 <select id="selectThermostat" onchange = "getState ()">
 </select>
 <select id="day" onchange = "getState ()">
-<option value="0">Sunday</option>
-<option value="1">Monday</option>
-<option value="2" >Tuesday</option>
-<option value="3">Wedensday</option>
-<option value="4">Thursday</option>
-<option value="5">Friday</option>
-<option value="6">Saturday</option>
+
+<option value="0">Monday</option>
+<option value="1" >Tuesday</option>
+<option value="2">Wedensday</option>
+<option value="3">Thursday</option>
+<option value="4">Friday</option>
+<option value="5">Saturday</option>
+<option value="6">Sunday</option>
 </select>
 <br/>
 <a href  =  "/openhab.app?sitemap=demo">Main Page </a>

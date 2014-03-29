@@ -1,6 +1,6 @@
 import org.openhab.core.library.types.*
 import org.openhab.core.library.items.*
-import org.openhab.actions.*
+
 import java.util.*
 import org.joda.time.* 
 
@@ -45,35 +45,40 @@ then
 		var currentTemperature=AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Temperature")).head.state as DecimalType
 		var hysteresis=AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Hysteresis")).head.state as DecimalType
 		var now = new DateTime()
-		var day= now.getDayOfWeek // tthis function counts zero from Monday
+		var day= now.getDayOfWeek-1 // tthis function counts 1 from Monday
 		var hour=now.getHourOfDay
 		var  below = false
 		AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("CurrentTarget")).head.postUpdate(Float::parseFloat(temperatureTarget.get(day*24+hour))) 
 		for  (i: 1..lookahead*60){
 			var future =now.plusMinutes(i)
+			var index=((future.getDayOfWeek-1)*24+future.getHourOfDay)
 			var countdown=Float::parseFloat(ThermostatAway.state.toString)-(i*0.017)
-			var temporaryTarget=Float::parseFloat(temperatureTarget.get(future.getDayOfWeek*24+future.getHourOfDay))
+			//logDebug("thermostat","day " + future.getDayOfWeek + ", hour " +future.getHourOfDay+", index is "+(index))
+			var temporaryTarget=Float::parseFloat(temperatureTarget.get(index))
 			if (countdown>0){
 				temporaryTarget=13
 				
 				logDebug("thermostat", i +": Currently away,  setting temperature targets to 13")
 			}
+			//logDebug("thermostat", "Testing for i="+i + ", current temperature is  expected to be " + (Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) + " compared to target " + (Float::parseFloat(temperatureTarget.get(index))))
 			if((heater.state ==OFF  && (Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) 
 				< (temporaryTarget- hysteresis))
 				 || (heater.state ==ON  && (Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60))
 				  < (temporaryTarget+ hysteresis))){
 					below = true
-					///logDebug("thermostat", "Testing for i="+i + ", current temperature is  expected to be " + (Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) + " compared to target " + (Float::parseFloat(temperatureTarget.get(future.getDayOfWeek*24+future.getHourOfDay))))
+					
 					//logDebug("thermostat", "We are below")
 			}
-			if((Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) > Float::parseFloat(temperatureTarget.get(future.getDayOfWeek*24+future.getHourOfDay))+ hysteresis){
-				if (heater.state!=OFF){
+			//logDebug("thermostat","test")
+			//if((Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) > Float::parseFloat(temperatureTarget.get(future.getDayOfWeek*24+future.getHourOfDay))+ hysteresis){
+			//	if (heater.state!=OFF){
 						
 					
 									
-				}
-			}
+			//	}
+			//}
 		}
+		logDebug("thermostat","done")
 		if (below && heater.state!=ON){
 			heater.sendCommand(ON)
 			logDebug("thermostat", "Switching on heater " + t.name)
@@ -83,6 +88,7 @@ then
 			logDebug("thermostat", "Switching off heater " + t.name)
 			notifyMyAndroid("Thermostat", "Switching off heater in " +t.name)
 		}
+		logDebug("thermostat","test")
 		logDebug("thermostat",t.name  +": current day is " + day +  ",  current hour is " +hour + ", and the temperature target is  " +temperatureTarget.get(day*24+hour)+ ".  The temperature is " +currentTemperature+ ", the heating rate is  "  +heatingRate +  ", and the heater is  " +heater.state)
 		if(AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Temperature")).head.historicState(now.minusMinutes(15)).state>currentTemperature && heater.state ==ON){
 			//Error
