@@ -1,5 +1,6 @@
 import org.openhab.core.library.types.*
 import org.openhab.core.library.items.*
+import org.openhab.actions.*
 import java.util.*
 import org.joda.time.* 
 
@@ -26,6 +27,7 @@ rule check_thermostat
 when Time cron  "0 * * * * ?"
 then
 	val lookahead=4
+	
 	if (ThermostatAway.state >0){
 		var updatedAway=Float::parseFloat(ThermostatAway.state.toString)-0.017
 		
@@ -36,6 +38,7 @@ then
 
 	AllThermostats?.members.forEach[t|
 		logDebug("thermostat",t.name)
+		
 		var temperatureTarget=AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("ThermostatSettings")).head.state.toString.split(",")
 		var heater = AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Heater")).head
 		var heatingRate = AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("HeatingRate")).head.state  as DecimalType
@@ -74,11 +77,23 @@ then
 		if (below && heater.state!=ON){
 			heater.sendCommand(ON)
 			logDebug("thermostat", "Switching on heater " + t.name)
+			notifyMyAndroid("Thermostat", "Switching on heater in " +t.name)
 		}else if (!below && heater.state!=OFF) {
 			heater.sendCommand(OFF)
 			logDebug("thermostat", "Switching off heater " + t.name)
+			notifyMyAndroid("Thermostat", "Switching off heater in " +t.name)
 		}
 		logDebug("thermostat",t.name  +": current day is " + day +  ",  current hour is " +hour + ", and the temperature target is  " +temperatureTarget.get(day*24+hour)+ ".  The temperature is " +currentTemperature+ ", the heating rate is  "  +heatingRate +  ", and the heater is  " +heater.state)
+		if(AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Temperature")).head.historicState(now.minusMinutes(15)).state>currentTemperature && heater.state ==ON){
+			//Error
+			logDebug("thermostat", "Heater is on, but getting colder. Maybe it is empty?")
+			notifyMyAndroid("Thermostat", "It's getting colder when the heater is on in " +t.name)
+		}
+		if(AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Temperature")).head.historicState(now.minusMinutes(15)).state<currentTemperature && heater.state ==OFF){
+			logDebug("thermostat", "It is getting warmer, but heater is off, turning it off again just in case")
+			notifyMyAndroid("Thermostat", "It is getting warmer despite the heater being off, switching it off again in " +t.name)
+			heater.sendCommand(OFF)
+		}
 		
 	]
 end

@@ -1,20 +1,21 @@
 sitemap demo label="Fallokken"
 {
+		Frame label="Date" {
+Text item=Date
+}
 Frame {
-		
-		Setpoint item=ThermostatAway minValue=0 maxValue=24 step=0.5
+		Setpoint item=ThermostatAway minValue=0 maxValue=24 step=0.5 icon="calendar"
 		Group item=gFF label="First Floor" icon="firstfloor"
 		Group item=gGF label="Ground Floor" icon="groundfloor"
 		Group item=gC label="Cellar" icon="cellar"	
 		Group item=Outdoors icon="garden" 
 		Group item=Temperature icon="temperature"
-		Group item=Humidity icon="humidity"
-		Group item=Weather   icon="weather"
-		Group item=AllThermostats
+		Group item=Humidity icon="temperature"
+		Group item=Weather   icon="wind"
+		Group item=AllThermostats icon="temperature"
 		Switch item=BedroomnHeater
 		Switch item=LivingRoomHeater
 		Text label="<a href='/thermostat/thermostat.html'>Thermostat control</a>" icon="temperature"
-		//Webview url="thermostat/thermostat.html" height=8 label="Thermostat settings" icon="temperature"
 }
 	Frame label="charts" {
 		Chart item=Temperature

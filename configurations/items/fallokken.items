@@ -28,3 +28,5 @@ Number	BasementHumidity	"Basement Humidity [%.1f %%]"	<humidity>	(Humidity,gC)		
 Number	WindSpeed	"Wind speed [%.1f m/s]"	<wind>	(Outdoors,Weather)		{ rxfcom="<27648:WindSpeed" }
 Number	WindDirection	"Wind direction [%d°]"	<wind>	(Outdoors,Weather)		{ rxfcom="<27648:WindDirection" }
 
+DateTime		Date			"Date [%1$tA, %1$td.%1$tm.%1$tY]"	<calendar>	{ ntp="Europe/Oslo" }
+
