@@ -1,0 +1,167 @@
+import org.openhab.core.library.types.*
+import org.openhab.model.script.actions.Timer
+import org.joda.time.* 
+
+var Timer awayTimer
+
+rule night_mode
+when Item NightLightSwitch received update ON
+	var  notify = 0
+	logDebug("houseControl", "Switching to night mode")
+	groupLightsOffAtNight?.members.forEach(item,i|createTimer(now.plusSeconds(i))  [|sendCommand(item,OFF)])
+	if(FrontDoor.state==ON) {
+		Notify_Alert.postUpdate("Front door is open when switching to night mode")
+		notify = 1
+	}
+	if(KitchenDoor.state==ON) {
+		Notify_Alert.postUpdate("Kitchen door is open when switching to night mode")
+		notify = 1
+	}
+	NightLightSwitch.sendCommand(OFF)	
+	KidsPutToBedSwitch.sendCommand(OFF)
+	Notify_Info.postUpdate("Good night!");
+end
+
+rule away_mode
+when Item AwaySwitch received update ON
+	logDebug("houseControl", "Switching to away mode")
+	Notify_Info.postUpdate("Switching to away mode")
+	AwayLightSwitch.sendCommand(ON)
+end
+
+rule coming_home
+when Item Devices changed to ON
+then
+	if (awayTimer!=null) {
+		awayTimer.cancel()
+		awayTimer=null
+	} else {
+		Notify_Info.postUpdate("Someone has come home")
+	}
+	if(AwaySwitch.state!=OFF) {
+		AwaySwitch.sendCommand(OFF)
+	}
+end
+
+rule doorbell
+when Item Doorbell changed to ON
+then
+	//notifyMyAndroid("Dingdong!", "The doorbell has been rung")
+	
+	Notify_Info.postUpdate("The doorbell has been rung")
+	logInfo("houseControl", "Doorbell")
+	Doorbell.sendCommand(OFF)
+end
+
+rule first_floor_movement
+when Item FirstFloorHallMotionSensor changed to ON
+then
+	if (KidsPutToBedSwitch.state==ON) {
+		logInfo("houseControl", "Movement on the first floor hallway")
+		//notifyMyAndroid("Movement in first floor hallway", "Movement in first floor hallway")
+		Notify_Info.postUpdate("Movement in the first floor hallway")
+	}
+end
+
+rule manual_away_switch_off
+when Item AwaySwitchDongle changed to OFF
+then
+	AwaySwitch.sendCommand(ON)
+end
+
+rule manual_away_switch_on
+when Item AwaySwitchDongle changed to ON
+then
+	AwaySwitch.sendCommand(OFF)
+end
+
+rule kids_light
+when Item KidsBedroomLight changed to ON
+then
+	if (KidsPutToBedSwitch.state==ON) {
+		Notify_Warn.postUpdate("kid's bedroom light has been turned on")
+		notifyMyAndroid("Light has been turned on", "Kids bedroom has been turned on")
+	}
+end
+
+rule floodlight_on
+when Item Floodlight changed to ON
+then
+	//notifyMyAndroid("Light has been turned on", "Kids bedroom has been turned on")
+	Notify_Info.postUpdate("Floodlight has been turned on")
+	createTimer(now.plusMinutes(30))[|
+		if(Floodlight.state!=OFF) {
+			Floodlight.sendCommand(OFF)
+		}
+	]
+end
+
+
+rule going_out
+when Item Devices changed to OFF
+	awayTimer  =createTimer(now.plusMinutes(8)) [|
+		Notify_Info.postUpdate("Everyone has left")
+		if(AwaySwitch.state!=ON) {
+			awayTimer=null
+			//AwaySwitch.sendCommand(ON)
+		}
+		]
+end
+
+rule home_mode
+when Item AwaySwitch received update OFF
+	logDebug("houseControl", "Switching to home mode")
+	AwayLightSwitch.sendCommand(OFF)
+	groupLightsOnWhenHome?.members.forEach(item,i|createTimer(now.plusSeconds(i))  [|sendCommand(item,ON)])
+end
+	
+rule away_lights
+when Item AwayLightSwitch received update ON
+	groupLightsOffWhenAway?.members.forEach(item,i|createTimer(now.plusSeconds(i))  [|sendCommand(item,OFF)])
+	AwayLightSwitch.sendCommand(OFF)
+end
+
+rule info_changed
+when Item  Notify_Info  changed
+then
+  postUpdate(Notify_Info_changed, new DateTimeType())
+end
+rule warning_changed
+when Item  Notify_Warn  changed
+then
+  postUpdate(Notify_Warnchanged, new DateTimeType())
+end
+rule alert_changed
+when Item  Notify_Alert  changed
+then
+  postUpdate(Notify_Alert_changed, new DateTimeType())
+end
+rule alarm_changed
+when Item  Notify_Alarm  changed
+then
+  postUpdate(Notify_Alarm_changed, new DateTimeType())
+end
+
+rule sunrise
+when Item SunriseEvent received update ON
+then
+	OutdoorEastLight.sendCommand(OFF)
+	OutdoorWestLight.sendCommand(OFF)
+	Notify_Info.postUpdate("Sunrise")
+	
+end	
+
+rule sunset
+when Item SunsetEvent received update ON
+then
+	OutdoorEastLight.sendCommand(ON)
+	OutdoorWestLight.sendCommand(ON)
+	Notify_Info.postUpdate("Sunset")
+end	
+
+rule average_power
+when Item CurrentTotalPower changed
+then
+	var power=CurrentTotalPower.averageSince(now.minusHours(2))
+	postUpdate(AverageTotalPower, power)
+end

@@ -12,7 +12,7 @@ Frame {
 		Group item=Temperature icon="temperature"
 		Group item=Humidity icon="temperature"
 		Group item=Weather   icon="wind"
-		Group item=AllThermostats icon="temperature"
+		Group item=AllThermostats icon="thermostat"
 		Switch item=BedroomnHeater
 		Switch item=LivingRoomHeater
 		Text label="<a href='/thermostat/thermostat.html'>Thermostat control</a>" icon="temperature"

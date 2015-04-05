@@ -1,0 +1,96 @@
+import org.openhab.core.library.types.*
+import org.openhab.model.script.actions.Timer
+
+
+var Timer frontDoorTimer
+var Number sentNotification = 0
+
+//rule check_thermostat
+//when Time cron "0 * * * * ?"
+//then
+//logDebug("thermostat", "Target is: " +ChickenHeaterTarget.state+ ", temperature is: " +ChickenTemperature.state+ ", heater state is: " +ChickenHeater.state)
+
+
+//if (ChickenTemperature.state >= ChickenHeaterTarget.state as DecimalType+0.5) {
+//logDebug ("thermostat", "Above interval")
+//	if (ChickenHeater.state!=OFF) {
+//	logDebug ("thermostat", "Sending off command")
+		//ChickenHeater.sendCommand (OFF)
+//	}
+//}	
+	
+//if (ChickenTemperature.state <= ChickenHeaterTarget.state  as DecimalType-0.5) {
+//logDebug ("thermostat", "Below interval")
+//	if (ChickenHeater.state!=ON) {
+//	logDebug ("thermostat", "Sending on command")
+		//ChickenHeater.sendCommand (ON)
+//	}
+//}	
+//end
+
+rule wave_light
+when Item WavePrototype received update ON
+then
+	if (LibraryLight.state!=ON) {
+		sendCommand(LibraryLight, ON)
+	}	
+	else if (LibraryLight.state!=OFF) {
+		sendCommand(LibraryLight, OFF)
+	}	
+end	
+
+rule getting_cold
+when Item OutdoorTemperature changed
+then
+	if(OutdoorTemperature.state <16 && FrontDoor.state==ON && sentNotification==0) { 
+		frontDoorTimer  =createTimer(now.plusMinutes(3)) [|
+			Notify_Info.postUpdate("Front door is still open")
+			sentNotification  = 1
+			///notifyMyAndroid("Doors", "Front door is still open")
+		]
+		
+	}
+end		
+
+
+	
+rule front_door_open
+when Item FrontDoor changed to ON
+then
+	if(OutdoorTemperature.state <16 &&  sentNotification==0) { 
+		frontDoorTimer  =createTimer(now.plusMinutes(3)) [|
+			Notify_Alert.postUpdate("Front door is still open")
+			sentNotification  = 1
+		]
+		
+	}
+	if(AwaySwitch.state==ON) {
+		Notify_Warn.postUpdate("Front door has been opened while we are away!")
+		sendMail("frankose@gmail.com", "Frontdoor", "There is motion at the frontdoor", "http://192.168.1.14//img/snapshot.cgi?size=3"_
+	}
+end	
+
+rule front_door_closed
+when Item FrontDoor changed to OFF
+then
+	if (frontDoorTimer!=null) {
+		frontDoorTimer.cancel()
+		frontDoorTimer=null
+	}
+	if (sentNotification == 1) {
+		Notify_Info.postUpdate("Front door has been closed")
+//		notifyMyAndroid("Doors", "Front door has been closed")
+		sentNotification = 0
+	}
+	if(AwaySwitch.state==ON) {
+		Notify_Info.postUpdate("Front door has been closed while we are away!")
+	}
+end
+
+//rule initialise
+//when System started
+//then
+//	if (ChickenHeaterTarget.state==XXX){
+//		ChickenHeaterTarget.postUpdate(27.0)
+//	}
+//end

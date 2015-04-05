@@ -1,7 +1,7 @@
 Group	AllThermostats	(All)
 
-Group	LivingRoomThermostat	(AllThermostats)
-Group	BedroomnThermostat	(AllThermostats)
+Group	LivingRoomThermostat	<thermostat>	(AllThermostats)
+Group	BedroomnThermostat	//(AllThermostats)
 
 Group	ThermostatSettings	(All)
 Group	CurrentThermostatTarget	(All)	
@@ -9,22 +9,26 @@ Group	ThermostatHeatingRates	(All)
 Group	ThermostatHysteresis	(All)
 Group	ThermostatHeaters	(All)
 
+Group LivingRoomThermostat_chart 
+
 Number ThermostatAway	"Returning in [%.1f] hours"	<time>
 
 
-Switch	BedroomnHeater	"Heater North bedroom"	(FF_bedroomn,BedroomnThermostat,ThermostatHeaters)		{ rfxcom=">636602.1:LIGHTING2.AC:Command" }
-Switch	LivingRoomHeater	"Heater living room"	(GF_livingroom,LivingRoomThermostat,ThermostatHeaters)		{ rfxcom=">636602.2:LIGHTING2.AC:Command" }
+Switch	BedroomnHeaterSwitch	"Heater North bedroom"	(FF_bedroomn,BedroomnThermostat,ThermostatHeaters)		{ rfxcom=">636602.1:LIGHTING2.AC:Command" }
+Switch	LivingRoomHeaterSwitch	"Heater living room"	(GF_livingroom,LivingRoomThermostat,ThermostatHeaters,LivingRoomThermostat_chart)		{ rfxcom=">636602.2:LIGHTING2.AC:Command" }
 
 
 String	LivingroomThermostatSettings	"Living room thermostat string [%s]"	<heating>	(GF_livingroom,ThermostatSettings,LivingRoomThermostat)
 String	BedroomnThermostatSettings	"North bedroom thermostat string [%s]"	<heating>	(FF_bedroomn,ThermostatSettings,BedroomnThermostat)	
 
 //For graphing
-Number LivingRoomCurrentTarget	"The current living room target is  [%.1f]"  <temperature>	(CurrentThermostatTarget,GF_livingroom,LivingRoomThermostat)
-Number BedroomnCurrentTarget "The current North bedroom target is  [%.1f]"  <temperature>	(CurrentThermostatTarget,FF_bedroomn,BedroomnThermostat)
+Number LivingRoomCurrentTarget	"Current living room target [%.1f]"  <temperature>	(CurrentThermostatTarget,GF_livingroom,LivingRoomThermostat, LivingRoomThermostat_chart)
+Number BedroomnCurrentTarget "Current North bedroom target [%.1f]"  <temperature>	(CurrentThermostatTarget,FF_bedroomn,BedroomnThermostat)
 
-Number LivingRoomHysteresis "Living room hysteresis is [%.1f]"	<temperature>	(GF_livingroom,LivingRoomThermostat,ThermostatHysteresis)
-Number BedroomnHysteresis "North bedroom hysteresis is [%.1f]"	<temperature>	(FF_bedroomn,BedroomnThermostat,ThermostatHysteresis)
+Number LivingRoomHysteresis "Living room hysteresis [%.1f]"	<temperature>	(GF_livingroom,LivingRoomThermostat,ThermostatHysteresis)
+Number BedroomnHysteresis "North bedroom hysteresis [%.1f]"	<temperature>	(FF_bedroomn,BedroomnThermostat,ThermostatHysteresis)
 
-Number LivingRoomHeatingRate "Living room heating rate is [%.1f]"	<temperature>	(GF_livingroom,LivingRoomThermostat,ThermostatHeatingRates)
-Number BedroomnHeatingRate "North bedroom heating rate is [%.1f]"	<temperature>	(FF_bedroomn,BedroomnThermostat,ThermostatHeatingRates)
+Number LivingRoomHeatingRate "Living room heating rate [%.1f]"	<temperature>	(GF_livingroom,LivingRoomThermostat,ThermostatHeatingRates)
+Number BedroomnHeatingRate "North bedroom heating rate [%.1f]"	<temperature>	(FF_bedroomn,BedroomnThermostat,ThermostatHeatingRates)
+
+Switch LivingroomHeaterEmpty "Livingroom heater is empty" <heating>	(LivingRoomThermostat)

@@ -40,8 +40,7 @@ then
 		logDebug("thermostat",t.name)
 		
 		var temperatureTarget=AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("ThermostatSettings")).head.state.toString.split(",")
-		var heater = AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("HeaterSwitch")).head
-		var heaterEmpty = AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("HeaterEmpty")).head
+		var heater = AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Heater")).head
 		var heatingRate = AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("HeatingRate")).head.state  as DecimalType
 		var currentTemperature=AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Temperature")).head.state as DecimalType
 		var hysteresis=AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Hysteresis")).head.state as DecimalType
@@ -62,7 +61,7 @@ then
 				logDebug("thermostat", i +": Currently away,  setting temperature targets to 13")
 			}
 			//logDebug("thermostat", "Testing for i="+i + ", current temperature is  expected to be " + (Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) + " compared to target " + (Float::parseFloat(temperatureTarget.get(index))))
-			if((heater.state !=ON  && (Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) 
+			if((heater.state ==OFF  && (Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60)) 
 				< (temporaryTarget- hysteresis))
 				 || (heater.state ==ON  && (Float::parseFloat(currentTemperature.toString)+(i*heatingRate/60))
 				  < (temporaryTarget+ hysteresis))){
@@ -81,55 +80,45 @@ then
 		}
 		//logDebug("thermostat","done")
 		if (below && heater.state!=ON){
-			sendCommand(heater, ON)
+			heater.sendCommand(ON)
 			logDebug("thermostat", "Switching on heater " + t.name)
-			sendCommand(heaterEmpty, OFF)
 			notifyMyAndroid("Thermostat", "Switching on heater in " +t.name)
 		}else if (!below && heater.state!=OFF) {
-			sendCommand(heater,OFF)
+			heater.sendCommand(OFF)
 			logDebug("thermostat", "Switching off heater " + t.name)
 			notifyMyAndroid("Thermostat", "Switching off heater in " +t.name)
 		}
 		//logDebug("thermostat","test")
 		logDebug("thermostat",t.name  +": current day is " + day +  ",  current hour is " +hour + ", and the temperature target is  " +temperatureTarget.get(day*24+hour)+ ".  The temperature is " +currentTemperature+ ", the heating rate is  "  +heatingRate +  ", and the heater is  " +heater.state)
-		if (heaterEmpty!=null){
-			if(AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Temperature")).head.historicState(now.minusMinutes(15)).state>=currentTemperature 
-				&& heater.state==ON 
-				&& heaterEmpty.state==OFF
-				&& heater.historicState(now.minusMinutes(15)).state==ON
-			){
-			//	Error
-				logDebug("thermostat", "Heater is on, but getting colder. Maybe it is empty?")
-				notifyMyAndroid("Thermostat", "It's getting colder when the heater is on in " +t.name)
-				sendCommand(heaterEmpty,ON)
-			}
+		if(AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Temperature")).head.historicState(now.minusMinutes(15)).state>currentTemperature 
+			&& heater.state ==ON 
+			&& AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Heater")).head.historicState(now.minusMinutes(15)).state==ON
+			&& AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Heater")).head.changedSince(now.minusMinutes(17))
+		){
+			//Error
+			logDebug("thermostat", "Heater is on, but getting colder. Maybe it is empty?")
+			notifyMyAndroid("Thermostat", "It's getting colder when the heater is on in " +t.name)
 		}
-		if(AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Temperature")).head.historicState(now.minusMinutes(15)).state<=currentTemperature 
+		if(AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Temperature")).head.historicState(now.minusMinutes(15)).state<currentTemperature 
 			&& heater.state ==OFF
-			&& heater.historicState(now.minusMinutes(15)).state==OFF
-			&& heater.changedSince(now.minusMinutes(17))
+			&& AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Heater")).head.historicState(now.minusMinutes(15)).state==OFF
+			&& AllThermostats.allMembers.filter(m | m.groupNames.contains(t.name)).filter(n  | n.name.contains("Heater")).head.changedSince(now.minusMinutes(17))
 		){
 			logDebug("thermostat", "It is getting warmer, but heater is off, turning it off again just in case")
 			//notifyMyAndroid("Thermostat", "It is getting warmer despite the heater being off, switching it off again in " +t.name)
-			sendCommand(heater, OFF)
-
+			heater.sendCommand(OFF)
 		}
 		
 	]
 end
 
-rule update_livingroom_trend
-when Item  LivingroomTemperature received update
-then
-	var present = LivingroomTemperature.state as DecimalType
-	var past=LivingroomTemperature.historicState(now.minusMinutes(15)).state as DecimalType
-	postUpdate(LivingroomTemperatureTrend, (present-past)/0.25)
-end
 
-rule update_outdoor_trend
-when Item  OutdoorTemperature received update
+rule "Update livingroom trend"
+when
+    Item  LivingroomTemperature received update
 then
-	var present = OutdoorTemperature.state as DecimalType
-	var past=OutdoorTemperature.historicState(now.minusMinutes(15)).state as DecimalType
-	postUpdate(OutdoorTemperatureTrend, (present-past)/0.25)
+	var present=LivingroomTemperature.state as DecimalType
+	var past=LivingroomTemperature.historicState(now.minusMinutes(15)).state as DecimalType
+    postUpdate(LivingroomTemperatureTrend, (present - past)/0.25)
+
 end

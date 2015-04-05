@@ -1,0 +1,49 @@
+sitemap greent label="Fallokken"
+{
+	Frame label="Time" {
+//		Text item=Date
+		Webview url="/thermostat/time2.html" height=1
+		}
+	Frame label="Going out?"  {
+		Setpoint item=ThermostatAway icon="calendar" minValue=0 maxValue=24 step=0.5 		
+	}	
+	Frame label="Livingroom"  {
+		Text item=LivingroomTemperature 		
+		Text item=LivingRoomCurrentTarget 		
+		Text item=LivingroomTemperatureTrend 		
+		Switch item=LivingRoomHeaterSwitch 
+		Switch item=LivingRoomHeaterEmpty
+		}
+		
+	Frame label="Outdoors"  {
+		
+		Text item=OutdoorTemperature 	
+		Text item=OutdoorTemperatureTrend 		
+		Text item=OutdoorHumidity 		
+		//Text item=WindSpeed 		
+		//Text item=WindDirection
+		Switch item=OutdoorLight 		
+	}	
+	Frame label="Heating history" {	
+		Chart item=LivingRoomThermostat_chart	
+	}	
+	Frame label="Thermostats"  {
+		Webview url="/thermostat/thermostat.html" height=6 		
+		Text label="<a href='/thermostat/thermostat.html'>Edit</a>" icon="temperature" 		
+	}	
+	Frame  {
+		Group item=Humidity icon="temperature"  label="Environment"{
+			Frame label="Humidity"{
+				Chart item=Humidity
+			} 	
+			Frame label="Temperature"{
+				Chart item=Temperature
+				}	
+		}
+		
+		
+		
+		}			
+	}	
+}
+

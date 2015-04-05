@@ -1,0 +1,42 @@
+ var Timer stableTimer
+ var Timer basementTimer
+ var Timer fusesTimer
+
+rule stableCrashed
+when
+	Item StableTemperature changed
+then
+	if(stableTimer!=null) {
+		stableTimer.cancel
+		stableTimer = null
+	}
+	stableTimer = createTimer(now.plusMinutes(20)) [|
+		Notify_Info.postUpdate("Stable sensor has broken down")
+	]
+end
+
+rule basementCrashed
+when
+	Item BasementTemperature changed
+then
+	if(basementTimer!=null) {
+		basementTimer.cancel
+		basementTimer = null
+	}
+	basementTimer = createTimer(now.plusMinutes(20)) [|
+		Notify_Info.postUpdate("Basement sensor has broken down")
+	]
+end
+
+rule fusesCrashed
+when
+	Item FusesTemperature changed
+then
+	if(fusesTimer!=null) {
+		fusesTimer.cancel
+		fusesTimer = null
+	}
+	fusesTimer = createTimer(now.plusMinutes(20)) [|
+		Notify_Info.postUpdate("Fuses sensor has broken down")
+	]
+end

@@ -1,0 +1,105 @@
+Group	All
+Group	Temperature	"Temperatures"	<temperature>	(Status)	
+Group	Humidity	"Humidities"	<humidity>	(Status)	
+Group	Thermostat	(Status)	
+Group	Stable	(All)	
+Group	Outdoors	<garden>	(All)	
+Group	Weather	(All)	
+Group	Status	(All)	
+Group	Doors	(All)	
+Group	Energy	<energy>	(All)	
+Group	Power	<energy>	(All)	
+Group	SensorPower	<energy>	(All)	
+Group	GF	"Ground floor"	<groundfloor>	(All)	
+Group	FF	"First floor"	<firstfloor>	(All)	
+Group	BF	"Basement"	<bath>	(All)	
+Group	Astronomy	"Astronomy"	<sun>	(All)	
+Group	Outdoors	"Outdoors"	(All)	
+Group	GF_MasterLivingRoom	"Master living room"	<sofa>	(GF)	
+Group	GF_Kitchen	"Kitchen"	<kitchen>	(GF)	
+Group	FF_MasterBedroom	"Master bedroom"	<bedroom>	(FF)	
+Group	FF_ExtraBedroom	"Extra bedroom"	<bedroom>	(FF)	
+Group	FF_KidsBedroom	"Kids bedroom"	<bedroom>	(FF)	
+Group	GF_SmallHall	"Small hallway"	<terrace>	(GF)	
+Group	GF_Library	"Library"	<sofa>	(GF)	
+Group	GF_MainHall	"Big hallway"	<terrace>	(GF)	
+Group	FF_Hall	"First floor hall"	(FF)	
+Group	FF_Office	"Master office"	<office>	(FF)	
+Group	FF_MonicaRoom	"Monica's room"	<office>	(FF)	
+Group	GF_Sittingroom	"Sitting-room"	<sofa>	(GF)	
+Group	groupLightsOffAtNight	(groupLightsOffWhenAway)	
+Group	groupLightsOffWhenAway
+Group	groupLightsOnWhenHome
+Group	Notification
+Group:Switch:OR(ON,OFF)	Lights	"All Lights [(%d)]"	<light>
+Number	OutdoorTemperature	"Outdoor Temperature [%.1f °C]"	<temperature>	(Temperature,Outdoors,Weather)		{ rfxcom="<7425:Temperature" }
+Number	OutdoorRainRate	"Outdoor Rain rate [%.1f mm]"	<rain>	(Outdoors,Weather)		{ rfxcom="<18432:RainRate" }
+Number	OutdoorHumidity	"Outdoor Humidity [%.1f %%]"	<humidity>	(Humidity,Outdoors,Weather)		{ rfxcom="<7425:Humidity" }
+Number	FusesTemperature	"Fuses Temperature [%.1f °C]"	<temperature>	(Temperature,FF_Office)		{ mqtt="<[mosquitto:/mySensors/3/2/V_TEMP:state:default]" }
+String	FusesTemperatureLast	"Fuses Temperature last [%s]"	<temperature>	(Temperature,FF_Office)		{ mqtt="<[mosquitto:/mySensors/3/2/V_TEMP/lastupdate:state:default]" }
+Number	BasementTemperature	"Basement Temperature [%.1f °C]"	<temperature>	(Temperature,BF)		{ mqtt="<[mosquitto:/mySensors/1/1/V_TEMP:state:default]" }
+String	BasementTemperatureLast	"Basement Temperature last [%s]"	<temperature>	(Temperature,BF)		{ mqtt="<[mosquitto:/mySensors/1/1/V_TEMP/lastupdate:state:default]" }
+Number	BasementVoltage	"Basement Voltage [%.1f V]"	<energy>	(SensorPower,BF)		{ mqtt="<[mosquitto:/mySensors/1/2:state:default]" }
+Number	StableTemperature	"Stable Temperature [%.1f °C]"	<temperature>	(Temperature,Stable)		{ mqtt="<[mosquitto:/mySensors/5/1/V_TEMP:state:default]" }
+String	StableTemperatureLast	"Stable Temperature last [%s]"	<temperature>	(Temperature,Stable)		{ mqtt="<[mosquitto:/mySensors/5/1/V_TEMP/lastupdate:state:default]" }
+Number	StableVoltage	"Stable Voltage [%.1f V]"	<energy>	(SensorPower,Stable)		{ mqtt="<[mosquitto:/mySensors/5/2:state:default]" }
+Number	Windspeed	"Outdoor windspeed [%.1f m/s]"	<wind>	(Outdoors,Weather)		{ rfxcom="<27648:WindSpeed" }
+Switch	Entertainment_Switch	"Entertainment centre"	(All,GF_MasterLivingRoom,groupLightsOffAtNight)		{ zwave="2:command=switch_binary" }
+Number	Entertainment_Power	"Entertainment centre power consumption [%.1f W]"	<energy>	(Energy,GF_MasterLivingRoom)		{ zwave="2:command=meter,meter_scale=E_W" }
+Number	Entertainment_Energy	"Entertainment centre total energy usage  [%.2f KWh]"	<energy>	(Energy,GF_MustALivingRoom)		{ zwave="2:command=meter,meter_scale=E_KWh" }
+Switch	ChickenHeater	"Chicken lamp"	(GF_SmallHall,ThermostatHeaters)		{ rfxcom=">636602.1:LIGHTING2.AC:Command" }
+Switch	MainInternet	"Main Internet"	(FF_Office)		{ rfxcom=">636602.2:LIGHTING2.AC:Command" }
+Number	ChickenHeaterTarget	"Chicken thermostat target [%.1f °C]"	<temperature>	(Thermostat)	
+Switch	FrontDoor	"Front door"	(GF_MainHall,Doors)		{ rfxcom="<7358430.10:Command" }
+Switch	KitchenDoor	"Kitchen door"	(GF_SmallHall,Doors)		{ rfxcom="<8617790.10:Command" }
+Number	KitchenTemperature	"Kitchen Temperature [%.1f °C]"	<temperature>	(Temperature,GF_Kitchen)		{ rfxcom="<46081:Temperature" }
+Number	SittingRoomTemperature	"Sitting-room Temperature [%.1f °C]"	<temperature>	(Temperature,GF_Sittingroom)		{ rfxcom="<29194:Temperature" }
+Number	KidsBedroomTemperature	"Kids Bedroom Temperature [%.1f °C]"	<temperature>	(Temperature,FF_KidsBedroom)		{ rfxcom="<56834:Temperature" }
+Number	KitchenHumidity	"Kitchen Humidity [%.1f °C]"	<Humidity>	(Humidity,GF_Kitchen)		{ rfxcom="<46081:Humidity" }
+Number	SittingroomHumidity	"Sitting-room Humidity [%.1f °C]"	<Humidity>	(Humidity,GF_Sittingroom)		{ rfxcom="<29194:Humidity" }
+Number	KidsBedroomHumidity	"Kids Bedroom Humidity [%.1f °C]"	<Humidity>	(Humidity,FF_KidsBedroom)		{ rfxcom="<56834:Humidity" }
+Switch	WavePrototype	(All)		{ mqtt="<[mosquitto:/mySensors/1/1/V_LIGHT:state:MAP(mqtt.map)]" }
+Switch	LEDPrototype	(All)		{ mqtt=">[mosquitto:/mySensors/1/2/V_LIGHT:command:ON:1],>[mosquitto:/mySensors/1/2/V_LIGHT:command:OFF:0]" }
+Number	CurrentTotalPower	"Current overall power draw [%.1f W]"	<energy>	(Energy,Power)		{ mqtt="<[mosquitto:/mySensors/3/1/V_WATT:state:default]" }
+Number	AverageTotalPower	"Average (30m) overall power draw [%.1f W]"	<energy>	(Energy,Power)	
+Number	TotalEnergy	"Overall energy consumption  [%.1 kWh]"	<energy>	(Energy)		{ mqtt="<[mosquitto:/mySensors/3/1/V_KWH:state:default]" }
+String	Notify_Info	"Info [%s]"	(Notification)		{ mqtt=">[mosquitto:/openhab/notification/info:state:*:default]" }
+DateTime	Notify_Info_changed	"Notify_Info Changed at [%1$tA, %1$td.%1$tm.%1$tY %1$tT]"
+Number	Notify_Info_since	"Time since change  [%d]"
+String	Notify_Alert	"Alert [%s]"	(Notification)		{ mqtt=">[mosquitto:/openhab/notification/alert:state:*:default]" }
+DateTime	Notify_Alert_changed	"Notify_Alert Changed at [%1$tA, %1$td.%1$tm.%1$tY %1$tT]"
+Number	Notify_Alert_since	"Time since change  [%d]"
+String	Notify_Warn	"Warning [%s]"	(Notification)		{ mqtt=">[mosquitto:/openhab/notification/warn:state:*:default]" }
+DateTime	Notify_Warn_changed	"Notify_Warn Changed at [%1$tA, %1$td.%1$tm.%1$tY %1$tT]"
+Number	Notify_Warn_since	"Time since change  [%d]"
+String	Notify_Alarm	"Alarm [%s]"	(Notification)		{ mqtt=">[mosquitto:/openhab/notification/alarm:state:*:default]" }
+DateTime	Notify_Alarm_changed	"Notify_Alarm Changed at [%1$tA, %1$td.%1$tm.%1$tY %1$tT]"
+Number	Notify_Alarm_since	"Time since change  [%d]"
+Switch	LibraryLight	"Library light"	(Lights,GF_Library,groupLightsOffAtNight)		{ zwave="8:command=basic" }
+Switch	MasterLivingRoomLight	"Master living room light"	(Lights,GF_MasterLivingRoom,groupLightsOffAtNight)		{ zwave="9:command=basic" }
+Switch	SittingRoomLight	"Sitting room light"	(Lights,GF_Sittingroom,groupLightsOffAtNight)		{ zwave="15:command=basic" }
+Switch	MonicaRoomLight	"Monica's room light"	(Lights,FF_MonicaRoom,groupLightsOffAtNight)		{ zwave="12:command=basic" }
+Switch	OfficeLight	"Frank Olaf's office light"	(Lights,FF_Office,groupLightsOffAtNight)		{ zwave="20:command=basic" }
+Switch	MainHallLight	"Main hall lights"	(Lights,GF_MainHall,groupLightsOffWhenAway,groupLightsOnWhenHome)		{ zwave="19:command=switch_binary" }
+Switch	FirstFloorHallLight	"First-floor hall lights"	(Lights,FF_Hall,groupLightsOffWhenAway,groupLightsOnWhenHome)		{ zwave="11:command=switch_binary" }
+Switch	KidsBedroomLight	"Kid's bedroom light"	(Lights,FF_KidsBedroom,groupLightsOffAtNight)		{ zwave="17:command=switch_binary" }
+Switch	MasterBedroomLight	"Master bedroom light"	(Lights,FF_MasterBedroom,groupLightsOffAtNight)		{ zwave="18:command=switch_binary" }
+Switch	ExtraBedroomLight	"Extra bedroom light"	(Lights,FF_ExtraBedroom,groupLightsOffAtNight)		{ zwave="29:command=switch_binary" }
+Switch	Floodlight	"Floodlight"	(Lights,Outdoors,groupLightsOffAtNight)		{ zwave="10:command=switch_binary" }
+Switch	OutdoorEastLight	"Main porch light"	(Lights,Outdoors)		{ zwave="13:command=basic" }
+Switch	OutdoorWestLight	"Back porch light"	(Lights,Outdoors)		{ zwave="25:command=basic" }
+Switch	NightLightSwitch	"Night mode, lights"
+Switch	AwayLightSwitch	"Away mode, lights"
+Switch	KidsPutToBedSwitch	"Monitor first floor"	(FF)
+Switch	AwaySwitch	"Away mode"
+Switch	SunriseEvent	""	(Astronomy)		{ astro="planet=sun, type=rise, property=end" }
+Switch	SunsetEvent	""	(Astronomy)		{ astro="planet=sun, type=set, property=start" }
+Switch	NoonEvent	""	(Astronomy)		{ astro="planet=sun, type=noon, property=end" }
+Switch	PreSunsetEvent	""	(Astronomy)		{ astro="planet=sun, type=set, property=start, offset=-60" }
+Switch	PostSunriseEvent	""	(Astronomy)		{ astro="planet=sun, type=rise, property=end, offset=+60" }
+DateTime	Sunset_Eventtime	"Sunset: [%1$tH:%1$tM]"	(Astronomy)		{ astro="planet=sun, type=set, property=start" }
+DateTime	Sunrise_Eventtime	"Sunrise: [%1$tH:%1$tM]"	(Astronomy)		{ astro="planet=sun, type=rise, property=end" }
+Number	Temperature_Chart_Period
+Switch	AwaySwitchDongle	"Manual away switch"	(GF_MainHall)		{ rfxcom="<13776738.3:Command" }
+Switch	FirstFloorHallMotionSensor	"First-floor hall motion sensor"	(FF_Hall)		{ rfxcom="<15669958.10:Command" }
+Switch	Doorbell	"Doorbell"	(GF_MainHall)		{ rfxcom="<16425162.0:Command" }

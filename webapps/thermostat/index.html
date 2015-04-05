@@ -1,0 +1,428 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="RGraph/libraries/RGraph.common.core.js" ></script>
+    <script src="RGraph/libraries/RGraph.common.dynamic.js" ></script>
+    <script src="RGraph/libraries/RGraph.bar.js" ></script>
+	<script src="jquery.min.js" type="text/javascript"></script>
+
+    <meta name="description" content="A range Line chart which is adjustable - so you can drag the data points up and down" />
+    <meta name="robots" content="noindex,nofollow" />
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../../docs-assets/ico/favicon.png">
+
+    <title>Fallokken control</title>
+   <link href="dist/css/bootstrap.css" rel="stylesheet"> 
+  </head>
+  
+  <body>
+  <script>
+    var hours;
+	
+    $(document).ready( function () {
+		//We count zero from Monday,, not from Sunday as JavaScript does
+		var today =(new Date).getDay ()-1;
+        if (today<0) {today=6;}
+		if(getUrlVars()["day"]){today=getUrlVars()["day"];}
+		setSelectedIndex (document.getElementById("day"),today);
+		getThermostats();
+		startclock()
+		getRooms();
+		getAway();
+    } );
+
+	function getUrlVars() {
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+    return vars;
+}
+	
+	var timerID = null
+var timerRunning = false
+
+function stopclock(){
+    if(timerRunning)
+        clearTimeout(timerID)
+    timerRunning = false
+}
+
+function startclock(){
+    stopclock()
+    showtime()
+}
+
+function showtime(){
+    var now = new Date()
+    var hours = now.getHours()
+    var minutes = now.getMinutes()
+    var seconds = now.getSeconds()
+    var timeValue = "" + ((hours < 10) ? "0" : "") + hours
+    timeValue  += ((minutes < 10) ? ":0" : ":") + minutes
+    timeValue  += ((seconds < 10) ? ":0" : ":") + seconds
+    
+    document.getElementById('clock').innerHTML = timeValue 
+    timerID = setTimeout("showtime()",1000)
+    timerRunning = true
+	if (seconds==0){
+		getAway();
+	}
+}
+	
+	function setSelectedIndex(s, valsearch)
+	{
+	// Loop through all the items in drop down list
+		for (i = 0; i< s.options.length; i++)
+		{
+			if (s.options[i].value == valsearch)
+			{
+// Item is found. Set its property and exit
+				s.options[i].selected = true;
+				break;
+			}
+		}
+		return;
+	}
+	
+	function readvars(obj){
+		var e = document.getElementById("day");
+		console.log ("hours =" +hours);
+		var daynum = e.options[e.selectedIndex].value;
+		var start_slice=hours.slice(0,daynum*24);
+		var end_slice=hours.slice((daynum)*24+24,hours.length);
+		var new_slice=(RGraph.Registry.Get('chart.adjusting.shape')[0].data);
+		var modified_slice = [];
+		
+		for(var i=0; i<new_slice.length;i++) modified_slice[i] = 15+new_slice [i];
+		
+		
+		var new_hours=start_slice.concat(modified_slice, end_slice);
+		var output_string = new_hours.join();
+		console.log ("I put string =" + output_string);
+		setState(output_string);
+	}
+	
+	function getThermostats()
+{
+        var request = $.ajax
+        ({
+                type       : "GET",
+                url        : "/rest/items/ThermostatSettings",
+				dataType	: "xml"
+        });
+
+        request.done( function(data) 
+        { 
+				var i=0;
+				select = document.getElementById('selectThermostat');
+				$(data).find('members').each(function(){
+					var opt = document.createElement('option');
+					opt.value = $(this).find('name').text();
+					opt.innerHTML = $(this).find('name').text();
+					if (i == 0) {
+						opt.selected = true;
+					}
+					i=i+1;
+					select.appendChild(opt);
+                console.log( "Success: thermostats=" + $(this).find('name').text());
+				});
+				setSelectedIndex (select,"LivingroomThermostatSettings");
+				getState();
+        });
+
+        request.fail( function(jqXHR, textStatus ) 
+        { 
+                console.log( "Failure: " + textStatus );
+        });
+}
+
+	function getAway()
+{
+        var request = $.ajax
+        ({
+                type       : "GET",
+                url        : "/rest/items/ThermostatAway",
+				dataType	: "json"
+        });
+
+        request.done( function(data) 
+        { 
+				document.getElementById('return_time').value=data.state;
+        });
+
+        request.fail( function(jqXHR, textStatus ) 
+        { 
+                console.log( "Failure: " + textStatus );
+        });
+}
+
+function setAway(txt)
+{
+        var request = $.ajax
+        ({
+                type       : "PUT",
+                url        : "/rest/items/ThermostatAway/state",
+				contentType    : "text/plain" ,
+				data 		: txt
+        });
+
+        request.done( function(data) 
+        { 
+				console.log("Updated awaystatus");
+        });
+
+        request.fail( function(jqXHR, textStatus ) 
+        { 
+                console.log( "Failure: " + textStatus );
+        });
+}
+
+
+function updateSwitch(name, txt)
+{
+        var request = $.ajax
+        ({
+                type       : "PUT",
+                url        : "/rest/items/"+name+"/state",
+				contentType    : "text/plain" ,
+				data 		: txt
+        });
+
+        request.done( function(data) 
+        { 
+				console.log("Updated awaystatus");
+        });
+
+        request.fail( function(jqXHR, textStatus ) 
+        { 
+                console.log( "Failure: " + textStatus );
+        });
+}
+var rooms= [];
+
+var resultCount=0;
+var roomName="";
+function getRooms()
+{
+        var request = $.ajax
+        ({
+                type       : "GET",
+                url        : "/rest/items/Rooms",
+				dataType	: "json"
+        });
+
+        request.done( function(data) 
+        { 
+		$.each(data.members,function(j,v){
+			rooms.push(v.link);	
+			});
+			roominfo();
+		});
+
+        request.fail( function(jqXHR, textStatus ) 
+        { 
+                console.log( "Failure: " + textStatus );
+        });
+}
+
+function roominfo()
+{
+	for (var i=0;i<rooms.length;i++){
+		if(i%4==0){
+			document.getElementById('rooms').innerHTML+="<div class='row' id='row"+Math.floor(i/4)+"'></div>";
+		}
+	}
+	
+				$.each(rooms,function(j,v){
+					var request2 = $.ajax
+					({
+						type       : "GET",
+						url        : v,
+						dataType	: "json"
+					});
+					
+					request2.done( function(data2) 
+					{ 	
+						
+						console.log(data2.name);
+						roomName=data2.name;
+						
+							document.getElementById('row'+Math.floor(resultCount/4)).innerHTML+="<div class='col-xs-12 col-sm-4 col-md-3' id='"+roomName+"'></div>";
+							document.getElementById(roomName).innerHTML+="<b>"+roomName+"</b><p align ='center'>";
+							
+							$.each(data2.members,function(k,w){
+								if(w.type=="NumberItem" && (w.name.contains("Temperature") || w.name.contains("Humidity"))){
+									document.getElementById(roomName).innerHTML+="<p align ='center'>"+w.name+": "+parseFloat(w.state).toFixed(2)+"</p>";
+								}
+								if(w.type=="SwitchItem"){
+									var new_state=((w.state=="OFF")?"ON":"OFF");
+									console.log("state: "+ w.state+", new " + new_state);
+									document.getElementById(roomName).innerHTML+="<a href='#' onclick='updateSwitch(\""+w.name+"\",\""+new_state+"\")'><img src='/images/"+ ((w.state=="OFF")?"light-off.png":"light-on.png")+"'><br/>"+w.name+"</a>";
+								}
+							});
+							document.getElementById(roomName).innerHTML+="</p>";
+						resultCount=resultCount+1;	
+					});
+				
+					request2.fail( function(jqXHR, textStatus ) 
+					{ 
+						console.log( "Failure2: " + textStatus );
+					});
+    
+				});
+}				
+	
+	function getState()
+{		var selectedThermostat = document.getElementById("selectThermostat");
+	
+        var request = $.ajax
+        ({
+                type       : "GET",
+                url        : "/rest/items/" + selectedThermostat.options [selectedThermostat.selectedIndex].value + "/state"
+        });
+
+        request.done( function(data) 
+        { 
+                console.log( "Success: Status=" + data );
+				var selectedThermostat = document.getElementById("selectThermostat");
+				// Clear the canvas
+				if (data == "Uninitialized") {
+					data ="15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15,15,15,15,15,15,15,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,15,15"; 
+					console.log ("Initialised data: " + data);
+					setState(data);
+				}
+				var e = document.getElementById("day");
+				var daynum = e.options[e.selectedIndex].value;
+				var dayname = e.options[e.selectedIndex].text;
+				hours=data.split(',');
+				var hours_slice=hours.slice(daynum*24,(daynum)*24+24);
+				for(var i=0; i<hours_slice.length;i++) hours_slice[i] = hours_slice [i]-15;
+				console.log (hours_slice.length);
+				RGraph.Reset(document.getElementById('cvs'));
+				var bar = new RGraph.Bar('cvs',hours_slice)
+					.Set('chart.labels', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23])
+					.Set('chart.adjustable', RGraph.isOld() ? false : true)
+					.Set('chart.margin', 1)
+					.Set('chart.tickmarks.inner', true)
+					.Set('chart.label.inner', true)
+					.Set('chart.ylabels.specific', ['25','24','23','22','21','20','19','18','17','16','15'])
+					.Set('chart.ymax', '10')
+					.Set('chart.background.grid.autofit', true)
+					.Set('chart.background.grid.autofit.align', true)
+					.Set('chart.gutter.left', 25)
+					.Set('chart.title', selectedThermostat.options [selectedThermostat.selectedIndex].text + ' on a '+dayname);
+				bar.Draw();
+				RGraph.AddCustomEventListener(bar, 'onadjustend', readvars);
+        });
+
+        request.fail( function(jqXHR, textStatus ) 
+        { 
+                console.log( "Failure: " + textStatus );
+        });
+}
+
+function setState( txtNewState )
+{
+		var selectedThermostat = document.getElementById("selectThermostat");
+		
+        var request = $.ajax
+        ({
+                type       : "PUT",
+                url        : "/rest/items/" +selectedThermostat.options [selectedThermostat.selectedIndex].value+ "/state",
+                data       : txtNewState, 
+                contentType    : "text/plain" 
+				
+        });
+
+        request.done( function(data) 
+        { 
+                console.log( "Success" );
+        });
+
+        request.fail( function(jqXHR, textStatus ) 
+        { 
+                console.log( "Failure: " + textStatus );
+        });
+}
+</script>
+
+<div class="navbar navbar-default navbar-static-top">
+	<div class="container">
+		<div class="navbar navbar-default">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand active" href="lights.aspx">Fall&oslash;kken</a>
+            </div>
+            <div class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Pages<b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                <li><a href  =  "/openhab.app?sitemap=demo">OpenHAB</a></li>
+                <li><a href="/habmin/">HABMin</a></li>
+                </ul>
+                </li>
+                            <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Measurements<b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="plots.aspx?sensors=temp">Temperature</a></li>
+                  </ul>
+                </li>
+
+            </ul>
+			
+            <ul class="nav navbar-nav navbar-right">
+                <div class="form-group">
+					<div id="clock"></div>
+					<div class="form-group">
+						<input type='button' class="btn btn-success" id='save_time' value='Home in...'  onclick='setAway()'/> 
+					</div>
+					<div class="form-group">
+						<input type='text' id='return_time' name ='return_time' size='4' value =''/> hours
+					</div>
+				</div>
+			</ul>
+		</div><!--/.nav-collapse -->
+	  </div>
+  </div>
+</div>
+<div id="rooms">
+</div>
+<div class='row'>
+<p align='center'>
+	<canvas id='cvs' width='600' height='250'>[No canvas support]</canvas>
+	<br/>
+	<select id="selectThermostat" onchange = "getState ()">
+	</select>
+	<select id="day" onchange = "getState ()">
+	<option value="0">Monday</option>
+	<option value="1" >Tuesday</option>
+	<option value="2">Wedensday</option>
+	<option value="3">Thursday</option>
+	<option value="4">Friday</option>
+	<option value="5">Saturday</option>
+	<option value="6">Sunday</option>
+	</select>
+</p>
+
+</div>	
+
+ 
+
+<script src="jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="dist/js/bootstrap.js"></script>
+</body>
+</html>

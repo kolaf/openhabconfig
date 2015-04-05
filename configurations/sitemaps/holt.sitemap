@@ -1,0 +1,55 @@
+sitemap holt label="Holt"
+{
+	Frame label="Notifications" {
+	Text item=Notify_Alarm valuecolor=[Notify_Alarm_changed<600="red",Notify_Alarm_changed<1200="orange",Notify_Alarm_changed<1800="purple",Notify_Alarm_changed<2700="grey"] visibility=[Notify_Alarm_changed<86400]
+	Text item=Notify_Warn valuecolor=[Notify_Warn_changed<600="red",Notify_Warn_changed<1200="orange",Notify_Warn_changed<1800="purple",Notify_Warn_changed<2700="grey"] visibility=[Notify_Warn_changed<3600]
+	Text item=Notify_Alert valuecolor=[Notify_Alert_changed<600="red",Notify_Alert_changed<1200="orange",Notify_Alert_changed<1800="purple",Notify_Alert_changed<2700="grey"] visibility=[Notify_Alert_changed<3600]
+	Text item=Notify_Info valuecolor=[Notify_Info_changed<600="red",Notify_Info_changed<1200="orange",Notify_Info_changed<1800="purple",Notify_Info_changed<2700="grey"] visibility=[Notify_Info_changed<3600]
+	}
+	Frame label="The house" {
+		Group item=BF
+		Group item=GF  
+		Group item=FF  
+		
+		Group item=Lights
+		Group item=Outdoors
+		Group item=Stable
+		Group item=Temperature
+		Group item=Power
+		Group item=SensorPower
+		
+		
+		Text item=CurrentTotalPower
+		//Text item=AverageTotalPower		
+		
+		
+	}
+	Frame label="States"{
+		Switch item=NightLightSwitch
+		Switch item=AwaySwitch
+		
+		
+	}	
+	Frame label="Charts" {
+//		Setpoint item=ChickenHeaterTarget minValue=20.0 maxValue=40.0 step=1.0 
+Switch item=Temperature_Chart_Period label="Period" mappings=[0="Hour", 1="Day", 2="Week"] 
+Chart item=Temperature period=h refresh=300 visibility=[Temperature_Chart_Period==0, Temperature_Chart_Period=="Uninitialized"]  
+Chart item=Power period=h refresh=300 visibility=[Temperature_Chart_Period==0, Temperature_Chart_Period=="Uninitialized"]  
+Chart item=Temperature period=D refresh=1800 visibility=[Temperature_Chart_Period==1]  
+Chart item=Power period=D refresh=1800 visibility=[Temperature_Chart_Period==1]  
+Chart item=Temperature period=W refresh=3600 visibility=[Temperature_Chart_Period==2]  
+Chart item=Power period=W refresh=3600 visibility=[Temperature_Chart_Period==2]  
+		 //Webview url="http://home.kolaf.net:8080/habmin/chart.html?chart=Temperatures&service=rrd4j&period=86400" height=8 				
+		//Webview url="http://home.kolaf.net:8080/habmin/chart.html?chart=overallpower&service=rrd4j&period=86400" height=8 		
+	}	
+	
+	Frame label="Experimentation" {
+		Group item=Notification
+		Switch item=WavePrototype
+		Switch item=LEDPrototype
+		Group item=Devices  
+		Group item=Astronomy
+	}
+
+}
+

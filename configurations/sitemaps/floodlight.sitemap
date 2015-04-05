@@ -1,0 +1,5 @@
+sitemap floodlight label="Holt"
+{
+	Switch item=Floodlight
+}
+

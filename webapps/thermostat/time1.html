@@ -1,0 +1,49 @@
+<html>
+<head>
+	<script src="jquery.min.js" type="text/javascript"></script>
+	</head>
+<body>
+
+  <script>
+    var hours;
+	
+    $(document).ready( function () {
+		startclock()
+    } );
+
+	
+	var timerID = null
+var timerRunning = false
+
+function stopclock(){
+    if(timerRunning)
+        clearTimeout(timerID)
+    timerRunning = false
+}
+
+function startclock(){
+    stopclock()
+    showtime()
+}
+
+function showtime(){
+    var now = new Date()
+    var hours = now.getHours()
+    var minutes = now.getMinutes()
+    var seconds = now.getSeconds()
+    var timeValue = "" + ((hours < 10) ? "0" : "") + hours
+    timeValue  += ((minutes < 10) ? ":0" : ":") + minutes
+    timeValue  += ((seconds < 10) ? ":0" : ":") + seconds
+    
+    document.getElementById('clock').innerHTML = timeValue 
+    timerID = setTimeout("showtime()",1000)
+    timerRunning = true
+	if (seconds==0){
+		getAway();
+	}
+}
+</script>
+<div id="clock" STYLE="font-family: Arial Black; 
+font-size: 24px; color: black" align="center"></div>
+</body>
+</html>

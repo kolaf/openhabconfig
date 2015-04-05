@@ -1,0 +1,7 @@
+Group:Switch:OR(ON, OFF) Devices "Anyone home [(%d)]" 
+
+
+Switch monicaS4 (Devices) {nh="android-8405308654a93dd2"}
+Switch kolafLG (Devices) {nh="android-6b18285de92f2782"}
+Switch kolaf_owntracks "Frank Olaf @ home"  (Devices)	{ mqttitude="mosquitto:owntracks/kolaf/6b18285de92f2782:Holt" }
+Switch monica_owntracks "Monica @ home"  (Devices)	{ mqttitude="mosquitto:owntracks/villemy/435c563c1bc9c926:Holt" }
